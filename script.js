@@ -5,13 +5,13 @@ const CURRENCY_API_BASE = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-ap
 
 const priorityCodes = [
   "CNY", "USD", "EUR", "JPY", "HKD", "GBP", "AUD", "CAD", "CHF", "SGD",
-  "THB", "VND", "TWD", "KES", "TZS", "MOP", "MYR", "KRW", "AED", "SAR",
+  "THB", "VND", "TWD", "KES", "TZS", "UYU", "ARS", "CLP", "MOP", "MYR", "KRW", "AED", "SAR",
   "RUB", "ZAR", "MXN", "NZD"
 ];
 
 const fallbackCodes = [
   "BRL", "INR", "IDR", "PHP", "DKK", "SEK", "NOK", "PLN", "HUF", "TRY",
-  "CZK", "RON", "ILS", "AED", "SAR", "KES", "TZS", "VND", "TWD"
+  "CZK", "RON", "ILS", "AED", "SAR", "KES", "TZS", "VND", "TWD", "UYU", "ARS", "CLP"
 ];
 
 const currencyNames = {
@@ -30,6 +30,9 @@ const currencyNames = {
   TWD: "新台币",
   KES: "肯尼亚先令",
   TZS: "坦桑尼亚先令",
+  UYU: "乌拉圭比索",
+  ARS: "阿根廷比索",
+  CLP: "智利比索",
   MOP: "澳门元",
   MYR: "马来西亚林吉特",
   KRW: "韩元",
