@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="按指定日期换算货币，优先使用中国货币网人民币汇率中间价。">
+    <title>货币换算</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="converter" aria-labelledby="app-title">
+        <div class="converter-head">
+          <div class="brand-title">
+            <img src="assets/currency-mark.svg" alt="" aria-hidden="true">
+            <div>
+              <p class="eyebrow">中国货币网优先</p>
+              <h1 id="app-title">货币换算</h1>
+            </div>
+          </div>
+          <div class="status-pill" id="loadStatus">正在获取汇率</div>
+        </div>
+
+        <div class="workspace">
+          <section class="panel input-panel" aria-label="换算输入">
+            <div class="date-row">
+              <label class="field-label" for="rateDate">汇率日期</label>
+              <input id="rateDate" type="text" inputmode="numeric" maxlength="10" placeholder="YYYY-MM-DD">
+              <div class="date-select-grid" aria-label="选择汇率日期">
+                <select id="yearSelect" aria-label="年份"></select>
+                <select id="monthSelect" aria-label="月份"></select>
+                <select id="daySelect" aria-label="日期"></select>
+              </div>
+            </div>
+
+            <label class="field-label" for="amountInput">金额</label>
+            <div class="amount-row">
+              <input id="amountInput" type="number" min="0" step="0.01" value="100" inputmode="decimal">
+              <button class="icon-button" id="swapButton" type="button" aria-label="交换币种" title="交换币种">⇄</button>
+            </div>
+
+            <div class="currency-grid">
+              <div>
+                <label class="field-label" for="fromCurrency">从</label>
+                <select id="fromCurrency"></select>
+              </div>
+              <div>
+                <label class="field-label" for="toCurrency">换成</label>
+                <select id="toCurrency"></select>
+              </div>
+            </div>
+
+            <div class="quick-wrap" aria-label="常用币种">
+              <button type="button" data-quick="USD">USD</button>
+              <button type="button" data-quick="EUR">EUR</button>
+              <button type="button" data-quick="JPY">JPY</button>
+              <button type="button" data-quick="HKD">HKD</button>
+              <button type="button" data-quick="THB">THB</button>
+              <button type="button" data-quick="VND">VND</button>
+              <button type="button" data-quick="TWD">TWD</button>
+              <button type="button" data-quick="KES">KES</button>
+              <button type="button" data-quick="TZS">TZS</button>
+            </div>
+          </section>
+
+          <section class="panel result-panel" aria-live="polite">
+            <p class="result-label" id="resultLabel">换算结果</p>
+            <div class="result-number" id="resultNumber">
+              <span class="result-value">--</span>
+              <span class="result-code"></span>
+            </div>
+            <div class="rate-line" id="rateLine">等待汇率数据</div>
+            <div class="source-box" id="sourceBox"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
