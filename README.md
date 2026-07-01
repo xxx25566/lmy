@@ -1,23 +1,84 @@
-# 货币换算网站
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="按指定日期换算货币，优先使用中国货币网人民币汇率中间价。">
+    <title>货币换算</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="converter" aria-labelledby="app-title">
+        <div class="converter-head">
+          <div class="brand-title">
+            <img src="assets/currency-mark.svg" alt="" aria-hidden="true">
+            <div>
+              <p class="eyebrow">中国货币网优先</p>
+              <h1 id="app-title">货币换算</h1>
+            </div>
+          </div>
+          <div class="status-pill" id="loadStatus">正在获取汇率</div>
+        </div>
 
-这是一个可直接部署到 GitHub Pages 的静态网站。
+        <div class="workspace">
+          <section class="panel input-panel" aria-label="换算输入">
+            <div class="date-row">
+              <label class="field-label" for="rateDate">汇率日期</label>
+              <input id="rateDate" type="text" inputmode="numeric" maxlength="10" placeholder="YYYY-MM-DD">
+              <div class="date-select-grid" aria-label="选择汇率日期">
+                <select id="yearSelect" aria-label="年份"></select>
+                <select id="monthSelect" aria-label="月份"></select>
+                <select id="daySelect" aria-label="日期"></select>
+              </div>
+            </div>
 
-功能：
+            <label class="field-label" for="amountInput">金额</label>
+            <div class="amount-row">
+              <input id="amountInput" type="number" min="0" step="0.01" value="100" inputmode="decimal">
+              <button class="icon-button" id="swapButton" type="button" aria-label="交换币种" title="交换币种">⇄</button>
+            </div>
 
-- 用户可以自己选择汇率日期。
-- 换算优先使用中国货币网人民币汇率中间价历史接口。
-- 中国货币网没有覆盖的币种，会使用备用历史汇率源，并在结果里标注“这不是中国货币网人民币汇率中间价数据”。
-- 默认换成人民币。
-- 主流币种靠前，越南盾、泰铢、台币、肯尼亚先令、坦桑尼亚先令也排在前面。
+            <div class="currency-grid">
+              <div>
+                <label class="field-label" for="fromCurrency">从</label>
+                <select id="fromCurrency"></select>
+              </div>
+              <div>
+                <label class="field-label" for="toCurrency">换成</label>
+                <select id="toCurrency"></select>
+              </div>
+            </div>
 
-主要数据源：
+            <div class="quick-wrap" aria-label="常用币种">
+              <button type="button" data-quick="USD">USD</button>
+              <button type="button" data-quick="EUR">EUR</button>
+              <button type="button" data-quick="JPY">JPY</button>
+              <button type="button" data-quick="HKD">HKD</button>
+              <button type="button" data-quick="THB">THB</button>
+              <button type="button" data-quick="VND">VND</button>
+              <button type="button" data-quick="TWD">TWD</button>
+              <button type="button" data-quick="KES">KES</button>
+              <button type="button" data-quick="TZS">TZS</button>
+              <button type="button" data-quick="UYU">UYU</button>
+              <button type="button" data-quick="ARS">ARS</button>
+              <button type="button" data-quick="CLP">CLP</button>
+            </div>
+          </section>
 
-1. 中国货币网人民币汇率中间价历史数据
-2. Frankfurter / 欧洲央行参考汇率
-3. Currency API 第三方历史汇率，作为小币种备用来源
+          <section class="panel result-panel" aria-live="polite">
+            <p class="result-label" id="resultLabel">换算结果</p>
+            <div class="result-number" id="resultNumber">
+              <span class="result-value">--</span>
+              <span class="result-code"></span>
+            </div>
+            <div class="rate-line" id="rateLine">等待汇率数据</div>
+            <div class="source-box" id="sourceBox"></div>
+          </section>
+        </div>
+      </section>
+    </main>
 
-## 上线到 GitHub Pages
-
-把本目录中的 `index.html`、`styles.css`、`script.js` 和 `assets/` 上传到 GitHub 仓库根目录。
-
-在 GitHub 仓库页面进入 Settings -> Pages，选择部署分支和根目录，保存后等待 Pages 构建完成即可访问。
+    <script src="script.js"></script>
+  </body>
+</html>
