@@ -80,6 +80,7 @@ const resultLabel = document.querySelector("#resultLabel");
 const rateLine = document.querySelector("#rateLine");
 const sourceBox = document.querySelector("#sourceBox");
 const loadStatus = document.querySelector("#loadStatus");
+const customSelects = new Map();
 
 init();
 
@@ -90,14 +91,22 @@ function init() {
   renderCurrencyOptions();
   fromCurrency.value = "USD";
   toCurrency.value = "CNY";
+  enhanceCustomSelects();
+  syncCustomSelects();
   bindEvents();
   loadRatesForDate(state.requestedDate);
 }
 
 function bindEvents() {
   [amountInput, fromCurrency, toCurrency].forEach((node) => {
-    node.addEventListener("input", updateResult);
-    node.addEventListener("change", updateResult);
+    node.addEventListener("input", () => {
+      updateResult();
+      updateQuickState();
+    });
+    node.addEventListener("change", () => {
+      updateResult();
+      updateQuickState();
+    });
   });
 
   rateDate.addEventListener("change", () => {
@@ -130,6 +139,7 @@ function bindEvents() {
     fromCurrency.value = toCurrency.value;
     toCurrency.value = oldFrom;
     updateResult();
+    updateQuickState();
   });
 
   document.querySelectorAll("[data-quick]").forEach((button) => {
@@ -137,6 +147,7 @@ function bindEvents() {
       fromCurrency.value = button.dataset.quick;
       toCurrency.value = "CNY";
       updateResult();
+      updateQuickState();
     });
   });
 }
@@ -175,6 +186,7 @@ function refreshDayOptions(preferredDay = daySelect.value) {
     return `<option value="${pad2(day)}">${day}日</option>`;
   }).join("");
   daySelect.value = pad2(preferred);
+  syncCustomSelect(daySelect);
 }
 
 function dateFromSelects() {
@@ -201,6 +213,7 @@ async function loadRatesForDate(date) {
   state.requestedDate = date;
   state.rates = new Map();
   seedCny();
+  document.body.classList.add("is-loading");
   setStatus("正在获取汇率", "warn");
   updateResult();
 
@@ -218,6 +231,8 @@ async function loadRatesForDate(date) {
   renderCurrencyOptions();
   updateStatus();
   updateResult();
+  updateQuickState();
+  document.body.classList.remove("is-loading");
 }
 
 function seedCny() {
@@ -382,6 +397,9 @@ function renderCurrencyOptions() {
   toCurrency.innerHTML = options;
   fromCurrency.value = codes.includes(selectedFrom) ? selectedFrom : "USD";
   toCurrency.value = codes.includes(selectedTo) ? selectedTo : "CNY";
+  syncCustomSelect(fromCurrency);
+  syncCustomSelect(toCurrency);
+  updateQuickState();
 }
 
 function sortedCodes() {
@@ -421,6 +439,101 @@ function updateResult() {
   const source = sourceForPair(from, to);
   sourceBox.className = `source-box ${source.type}`;
   sourceBox.textContent = source.text;
+}
+
+function updateQuickState() {
+  document.querySelectorAll("[data-quick]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.quick === fromCurrency.value);
+  });
+  syncCustomSelects();
+}
+
+function enhanceCustomSelects() {
+  document.querySelectorAll("select").forEach((select) => {
+    if (customSelects.has(select)) return;
+
+    const shell = document.createElement("div");
+    shell.className = "select-shell";
+    if (select === fromCurrency || select === toCurrency) {
+      shell.classList.add("currency-select");
+    }
+
+    const trigger = document.createElement("button");
+    trigger.className = "select-trigger";
+    trigger.type = "button";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+
+    const menu = document.createElement("div");
+    menu.className = "select-menu";
+    menu.setAttribute("role", "listbox");
+
+    select.parentNode.insertBefore(shell, select);
+    shell.appendChild(select);
+    shell.appendChild(trigger);
+    shell.appendChild(menu);
+
+    trigger.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const isOpen = shell.classList.contains("open");
+      closeCustomSelects();
+      if (!isOpen) {
+        shell.classList.add("open");
+        trigger.setAttribute("aria-expanded", "true");
+      }
+    });
+
+    select.addEventListener("change", () => syncCustomSelect(select));
+
+    customSelects.set(select, { shell, trigger, menu });
+    syncCustomSelect(select);
+  });
+
+  document.addEventListener("click", closeCustomSelects);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeCustomSelects();
+  });
+}
+
+function syncCustomSelects() {
+  customSelects.forEach((_, select) => syncCustomSelect(select));
+}
+
+function syncCustomSelect(select) {
+  const custom = customSelects.get(select);
+  if (!custom) return;
+
+  const selected = select.options[select.selectedIndex];
+  custom.trigger.textContent = selected ? selected.textContent : "";
+  custom.menu.innerHTML = "";
+
+  Array.from(select.options).forEach((option) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "select-option";
+    item.textContent = option.textContent;
+    item.setAttribute("role", "option");
+    item.setAttribute("aria-selected", option.value === select.value ? "true" : "false");
+    if (option.value === select.value) item.classList.add("selected");
+
+    item.addEventListener("click", (event) => {
+      event.stopPropagation();
+      select.value = option.value;
+      select.dispatchEvent(new Event("input", { bubbles: true }));
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      closeCustomSelects();
+      syncCustomSelect(select);
+    });
+
+    custom.menu.appendChild(item);
+  });
+}
+
+function closeCustomSelects() {
+  customSelects.forEach(({ shell, trigger }) => {
+    shell.classList.remove("open");
+    trigger.setAttribute("aria-expanded", "false");
+  });
 }
 
 function sourceForPair(from, to) {
@@ -479,3 +592,4 @@ function isoToday() {
 function pad2(value) {
   return String(value).padStart(2, "0");
 }
+
